@@ -1,0 +1,416 @@
+{
+  "scan_id": "SCAN-2026-001",
+  "scan_metadata": {
+    "timestamp": "2026-09-27T11:42:08+05:30",
+    "duration_ms": 130,
+    "files_scanned": 5,
+    "languages": [
+      "Python",
+      "Java",
+      "JavaScript",
+      "Go"
+    ],
+    "scanner_version": "ECDAT 0.9.2"
+  },
+  "profiles_available": [
+    {
+      "id": "defense",
+      "label": "Defense",
+      "X": 50,
+      "Y": 5,
+      "note": "Classified data — lifetime 50 yrs, migration window 5 yrs"
+    },
+    {
+      "id": "government",
+      "label": "Government",
+      "X": 30,
+      "Y": 5,
+      "note": "Citizen records — lifetime 30 yrs, migration window 5 yrs"
+    },
+    {
+      "id": "healthcare",
+      "label": "Healthcare",
+      "X": 40,
+      "Y": 4,
+      "note": "Patient data — lifetime 40 yrs, migration window 4 yrs"
+    },
+    {
+      "id": "financial",
+      "label": "Financial",
+      "X": 20,
+      "Y": 3,
+      "note": "Transaction data — lifetime 20 yrs, migration window 3 yrs"
+    },
+    {
+      "id": "generic",
+      "label": "Generic",
+      "X": 10,
+      "Y": 2,
+      "note": "General application data — lifetime 10 yrs, migration 2 yrs"
+    }
+  ],
+  "scenarios_available": [
+    {
+      "id": "optimistic",
+      "label": "Optimistic",
+      "Z": 10,
+      "note": "CRQC expected in ~10 years"
+    },
+    {
+      "id": "moderate",
+      "label": "Moderate",
+      "Z": 15,
+      "note": "CRQC expected in ~15 years"
+    },
+    {
+      "id": "conservative",
+      "label": "Conservative",
+      "Z": 20,
+      "note": "CRQC expected in ~20 years"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-001",
+      "algorithm": "RSA-2048",
+      "type": "Asymmetric",
+      "file": "banking_app.py",
+      "line": 52,
+      "library": "PyCryptodome 3.20",
+      "severity": "critical",
+      "quantum_vulnerable": true,
+      "quantum_threat": "Shor's algorithm factors the modulus n in polynomial time on a cryptographically relevant quantum computer (CRQC). Every RSA key size — 2048 or 4096 — falls to the same attack.",
+      "description": "RSA-2048 is used for session-token signing. A quantum adversary can forge signatures and impersonate the token issuer, fully compromising authentication.",
+      "snippet": "from Crypto.PublicKey import RSA\nkey = RSA.generate(2048)\nsignature = pkcs1_5.sign(token, key)",
+      "recommendation": {
+        "algorithm": "ML-DSA (Dilithium2)",
+        "family": "NIST FIPS 204 — lattice signatures",
+        "note": "Drop-in signature replacement. Signature size grows 2420 B vs 256 B — verify token length limits.",
+        "effort": "2-3 weeks"
+      }
+    },
+    {
+      "id": "F-002",
+      "algorithm": "RSA-1024",
+      "type": "Asymmetric",
+      "file": "auth_service.go",
+      "line": 88,
+      "library": "crypto/rsa (stdlib)",
+      "severity": "critical",
+      "quantum_vulnerable": true,
+      "quantum_threat": "Shor's algorithm breaks RSA at any key size. 1024-bit is additionally within reach of well-funded classical adversaries today.",
+      "description": "Short RSA key used for license verification. Broken pre-quantum by key size alone; trivially broken post-quantum.",
+      "snippet": "import \"crypto/rsa\"\npub, _ := rsa.ParsePublicKey(licenseKey) // 1024-bit",
+      "recommendation": {
+        "algorithm": "ML-DSA (Dilithium2)",
+        "family": "NIST FIPS 204 — lattice signatures",
+        "note": "Replace immediately; interim classical fix is RSA-3072, but that is also quantum-broken.",
+        "effort": "1 week"
+      }
+    },
+    {
+      "id": "F-003",
+      "algorithm": "ECDSA (P-256)",
+      "type": "Asymmetric",
+      "file": "payment_gateway.py",
+      "line": 34,
+      "library": "cryptography 42.0",
+      "severity": "critical",
+      "quantum_vulnerable": true,
+      "quantum_threat": "Shor's algorithm solves the elliptic-curve discrete logarithm problem, recovering the private key from the public key.",
+      "description": "ECDSA signs payment authorisation requests. Quantum key recovery lets an attacker authorise arbitrary transactions.",
+      "snippet": "from cryptography.hazmat.primitives.asymmetric import ecdsa\nprivate_key = ec.generate_private_key(ec.SECP256R1())\nsig = private_key.sign(payload, ec.ECDSA(hashes.SHA256()))",
+      "recommendation": {
+        "algorithm": "SLH-DSA (SPHINCS+) or ML-DSA",
+        "family": "NIST FIPS 205 — hash-based signatures",
+        "note": "SPHINCS+ offers conservative security from hash functions alone; ML-DSA if signature size matters more.",
+        "effort": "2-3 weeks"
+      }
+    },
+    {
+      "id": "F-004",
+      "algorithm": "ECDH (secp256k1)",
+      "type": "Key Exchange",
+      "file": "crypto_utils.js",
+      "line": 21,
+      "library": "crypto-js 4.2",
+      "severity": "critical",
+      "quantum_vulnerable": true,
+      "quantum_threat": "Shor's algorithm breaks the elliptic-curve Diffie-Hellman problem, exposing every session key negotiated by it.",
+      "description": "Key agreement for the message channel. Recorded traffic can be decrypted retroactively once a CRQC exists ('harvest now, decrypt later').",
+      "snippet": "const shared = ecdh.computeSecret(peerPublicKey);",
+      "recommendation": {
+        "algorithm": "ML-KEM (Kyber768)",
+        "family": "NIST FIPS 203 — lattice KEM",
+        "note": "Faster handshake than ECDH; public key 1184 B. Pair with a hybrid X25519+ML-KEM during transition.",
+        "effort": "2 weeks"
+      }
+    },
+    {
+      "id": "F-005",
+      "algorithm": "Diffie-Hellman (1024-bit)",
+      "type": "Key Exchange",
+      "file": "SecureConfig.java",
+      "line": 120,
+      "library": "JCA — javax.crypto",
+      "severity": "critical",
+      "quantum_vulnerable": true,
+      "quantum_threat": "Shor's algorithm solves the finite-field discrete logarithm. 1024-bit groups are also within classical nation-state reach.",
+      "description": "Legacy DH parameter negotiation for admin console sessions.",
+      "snippet": "KeyPairGenerator kpg = KeyPairGenerator.getInstance(\"DiffieHellman\");\nkpg.initialize(1024);",
+      "recommendation": {
+        "algorithm": "ML-KEM (Kyber768)",
+        "family": "NIST FIPS 203 — lattice KEM",
+        "note": "Remove finite-field DH entirely rather than raising group size — larger groups stay quantum-broken.",
+        "effort": "2 weeks"
+      }
+    },
+    {
+      "id": "F-006",
+      "algorithm": "MD5",
+      "type": "Hash",
+      "file": "banking_app.py",
+      "line": 22,
+      "library": "hashlib (stdlib)",
+      "severity": "critical",
+      "quantum_vulnerable": true,
+      "quantum_threat": "Already broken classically — practical collision attacks since 2004. No quantum computer needed.",
+      "description": "MD5 checksum for file integrity. Collisions allow tampered files to pass verification.",
+      "snippet": "import hashlib\ndigest = hashlib.md5(payload).hexdigest()",
+      "recommendation": {
+        "algorithm": "SHA-384 or SHA-512",
+        "family": "SHA-2 family",
+        "note": "One-line change; SHA-2 is Grover-resistant at 384+ bits.",
+        "effort": "1 day"
+      }
+    },
+    {
+      "id": "F-007",
+      "algorithm": "SHA-1",
+      "type": "Hash",
+      "file": "crypto_utils.js",
+      "line": 45,
+      "library": "crypto (Node stdlib)",
+      "severity": "high",
+      "quantum_vulnerable": true,
+      "quantum_threat": "Collision attack demonstrated by Google/CWI in 2017 (SHAttered). Deprecated by NIST since 2011.",
+      "description": "SHA-1 used for legacy commit verification fallback.",
+      "snippet": "const h = crypto.createHash('sha1').update(data).digest('hex');",
+      "recommendation": {
+        "algorithm": "SHA-256 or SHA-384",
+        "family": "SHA-2 family",
+        "note": "Drop the legacy fallback branch entirely.",
+        "effort": "1 day"
+      }
+    },
+    {
+      "id": "F-008",
+      "algorithm": "3DES (EDE)",
+      "type": "Symmetric",
+      "file": "SecureConfig.java",
+      "line": 67,
+      "library": "JCA — javax.crypto",
+      "severity": "high",
+      "quantum_vulnerable": true,
+      "quantum_threat": "64-bit block size enables Sweet32 birthday attacks on long sessions. Formally deprecated by NIST in 2023.",
+      "description": "Legacy configuration store decryption. Small block size leaks information across large payloads.",
+      "snippet": "Cipher c = Cipher.getInstance(\"DESede/CBC/PKCS5Padding\");",
+      "recommendation": {
+        "algorithm": "AES-256-GCM",
+        "family": "AES",
+        "note": "Authenticated encryption also removes the separate MAC pass. Same JCA call shape.",
+        "effort": "3 days"
+      }
+    },
+    {
+      "id": "F-009",
+      "algorithm": "AES-128 (ECB mode)",
+      "type": "Symmetric",
+      "file": "payment_gateway.py",
+      "line": 18,
+      "library": "PyCryptodome 3.20",
+      "severity": "critical",
+      "quantum_vulnerable": true,
+      "quantum_threat": "ECB mode leaks structure — identical plaintext blocks produce identical ciphertext blocks (the 'ECB penguin'). Grover further halves the 128-bit security margin.",
+      "description": "Card PAN data encrypted in ECB mode. Patterns in card numbers remain visible in ciphertext.",
+      "snippet": "from Crypto.Cipher import AES\ncipher = AES.new(key, AES.MODE_ECB)",
+      "recommendation": {
+        "algorithm": "AES-256-GCM",
+        "family": "AES",
+        "note": "GCM provides confidentiality + integrity together; 256-bit key restores the Grover margin.",
+        "effort": "2 days"
+      }
+    },
+    {
+      "id": "F-010",
+      "algorithm": "Hardcoded AES key",
+      "type": "Key Material",
+      "file": "payment_gateway.py",
+      "line": 15,
+      "library": "—",
+      "severity": "critical",
+      "quantum_vulnerable": true,
+      "quantum_threat": "Not an algorithm weakness — the key itself is in source control. Anyone with repo access can decrypt production data today.",
+      "description": "AES key embedded as a string literal in source. Detectable by every secret-scanner; already exposed to every developer who ever cloned the repo.",
+      "snippet": "SECRET_KEY = b'k9Xw2mPq7LrT4vNz8YbC1dE6fH3jA5sD'",
+      "recommendation": {
+        "algorithm": "External key manager (HSM / KMS)",
+        "family": "Operational fix",
+        "note": "Rotate the key, store in AWS KMS / HashiCorp Vault, and load at runtime. Not a PQC issue — fix today.",
+        "effort": "1 week"
+      }
+    },
+    {
+      "id": "F-011",
+      "algorithm": "Hardcoded RSA private key (PEM)",
+      "type": "Key Material",
+      "file": "banking_app.py",
+      "line": 150,
+      "library": "—",
+      "severity": "critical",
+      "quantum_vulnerable": true,
+      "quantum_threat": "The private key is committed in source. Combined with F-001, an attacker can forge tokens right now — no quantum computer required.",
+      "description": "RSA private key PEM block in source code used as a signing fallback.",
+      "snippet": "FALLBACK_KEY = \"\"\"-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA7d3...\"",
+      "recommendation": {
+        "algorithm": "External key manager (HSM / KMS)",
+        "family": "Operational fix",
+        "note": "Rotate the keypair immediately, purge from git history, and provision via KMS.",
+        "effort": "1 week"
+      }
+    },
+    {
+      "id": "F-012",
+      "algorithm": "TLS 1.1",
+      "type": "Protocol",
+      "file": "crypto_utils.js",
+      "line": 8,
+      "library": "Node https",
+      "severity": "high",
+      "quantum_vulnerable": true,
+      "quantum_threat": "TLS 1.1 was formally deprecated in RFC 8996 (2021). Weak ciphersuites and no modern handshake protection.",
+      "description": "HTTPS client pinned to TLS 1.1 for an internal metrics endpoint.",
+      "snippet": "const agent = new https.Agent({ secureProtocol: 'TLSv1_method' });",
+      "recommendation": {
+        "algorithm": "TLS 1.3 (with hybrid X25519MLKEM768 when available)",
+        "family": "Protocol",
+        "note": "TLS 1.3 disables the legacy ciphersuites; PQC hybrids are already shipping in Chrome/OpenSSL.",
+        "effort": "3 days"
+      }
+    },
+    {
+      "id": "F-013",
+      "algorithm": "AES-192-CBC",
+      "type": "Symmetric",
+      "file": "auth_service.go",
+      "line": 34,
+      "library": "crypto/aes (stdlib)",
+      "severity": "medium",
+      "quantum_vulnerable": false,
+      "quantum_threat": "CBC without proper MAC is malleable; 192-bit key leaves only a 96-bit Grover margin (still strong).",
+      "description": "Internal cache encryption. Not urgent, but CBC malleability means tampering is undetected without a separate MAC.",
+      "snippet": "block, _ := aes.NewCipher(key) // aes.NewCipher + CBC mode",
+      "recommendation": {
+        "algorithm": "AES-256-GCM",
+        "family": "AES",
+        "note": "Swap mode to GCM in the next release cycle.",
+        "effort": "2 days"
+      }
+    },
+    {
+      "id": "F-014",
+      "algorithm": "X.509 certificate (expiring)",
+      "type": "Certificate",
+      "file": "SecureConfig.java",
+      "line": 12,
+      "library": "JCA truststore",
+      "severity": "low",
+      "quantum_vulnerable": true,
+      "quantum_threat": "Certificate uses RSA-2048 SubjectPublicKeyInfo — inherits RSA's quantum exposure. Also self-signed and expiring 2027-03.",
+      "description": "Self-signed service certificate with an RSA public key, expiring March 2027.",
+      "snippet": "CertificateFactory cf = CertificateFactory.getInstance(\"X.509\");",
+      "recommendation": {
+        "algorithm": "Reissue with ML-DSA composite (RFC 9370)",
+        "family": "Certificate",
+        "note": "On renewal, use a composite classical+PQC SPKI; cert chains are the slowest thing on the internet to rotate.",
+        "effort": "1 week"
+      }
+    },
+    {
+      "id": "F-015",
+      "algorithm": "AES-256-GCM",
+      "type": "Symmetric",
+      "file": "banking_app.py",
+      "line": 61,
+      "library": "PyCryptodome 3.20",
+      "severity": "safe",
+      "quantum_vulnerable": false,
+      "quantum_threat": "Grover's algorithm halves key search, leaving an effective 128-bit margin — beyond any feasible attack, classical or quantum.",
+      "description": "Primary data-at-rest encryption. Correctly used authenticated encryption with a 256-bit key.",
+      "snippet": "cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)\nciphertext, tag = cipher.encrypt_and_digest(data)",
+      "recommendation": {
+        "algorithm": "No action needed",
+        "family": "—",
+        "note": "Quantum-safe as deployed. Keep the key in a KMS (see F-010 for the contrast).",
+        "effort": "—"
+      }
+    },
+    {
+      "id": "F-016",
+      "algorithm": "SHA-256",
+      "type": "Hash",
+      "file": "banking_app.py",
+      "line": 16,
+      "library": "hashlib (stdlib)",
+      "severity": "safe",
+      "quantum_vulnerable": false,
+      "quantum_threat": "Grover reduces preimage resistance to 128 bits — still infeasible.",
+      "description": "General-purpose integrity hashing.",
+      "snippet": "digest = hashlib.sha256(payload).hexdigest()",
+      "recommendation": {
+        "algorithm": "No action needed",
+        "family": "—",
+        "note": "Quantum-safe as deployed.",
+        "effort": "—"
+      }
+    },
+    {
+      "id": "F-017",
+      "algorithm": "ChaCha20-Poly1305",
+      "type": "Symmetric",
+      "file": "crypto_utils.js",
+      "line": 73,
+      "library": "libsodium.js 0.7",
+      "severity": "safe",
+      "quantum_vulnerable": false,
+      "quantum_threat": "256-bit key retains a 128-bit Grover margin; AEAD construction is quantum-safe.",
+      "description": "Real-time channel encryption. Modern AEAD cipher.",
+      "snippet": "sodium.crypto_secretbox_easy(msg, nonce, key) // XChaCha20-Poly1305",
+      "recommendation": {
+        "algorithm": "No action needed",
+        "family": "—",
+        "note": "Quantum-safe as deployed.",
+        "effort": "—"
+      }
+    },
+    {
+      "id": "F-018",
+      "algorithm": "HMAC-SHA256",
+      "type": "MAC",
+      "file": "auth_service.go",
+      "line": 55,
+      "library": "crypto/hmac (stdlib)",
+      "severity": "safe",
+      "quantum_vulnerable": false,
+      "quantum_threat": "HMAC's security relies on the PRF property of SHA-256, which Grover does not meaningfully weaken at 256-bit output.",
+      "description": "Request authentication MAC.",
+      "snippet": "mac := hmac.New(sha256.New, secretKey)",
+      "recommendation": {
+        "algorithm": "No action needed",
+        "family": "—",
+        "note": "Quantum-safe as deployed.",
+        "effort": "—"
+      }
+    }
+  ]
+}
