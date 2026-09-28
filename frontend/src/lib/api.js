@@ -1,19 +1,40 @@
 const API_URL = 'http://localhost:8080';
 
+function inferType(asset) {
+    const n = asset.name.toUpperCase();
+    if (n.includes('AES')) return 'Symmetric';
+    if (n.includes('RSA') || n.includes('ECDSA') || n.includes('ECDH') || n.includes('DSA')) return 'Asymmetric';
+    if (n.includes('SHA') || n.includes('MD5')) return 'Hash';
+    return 'Other';
+}
+
+function describeMargin(asset) {
+    if(asset.status === 'BROKEN') {
+        return 'Already insecure today. Quantum timeing does not matter here.'
+    }
+
+    if (!asset.quantumVulnerable) {
+        return 'Not affected by quantum attacks, so no migration deadline applies.';
+    }
+    const m = asset.moscaMargin; // (X + Y) - Z
+    return m > 0
+        ? `Data and migration outlast quantum arrival by ${m} yrs.`
+        : `${-m} yrs of slack before quantum arrival.`;
+}
 // Converts one backend AssetRisk into the shape sampleResults.json uses,
 
 function toFinding(asset, index) {
     return {
         id: `F-${String(index + 1).padStart(3, '0')}`,
         algorithm: asset.name,
-        type: asset.quantumVulnerable ? 'Asymmetric' : 'Hash', // refine later if backend adds a real type
-        file: '—',        // backend doesn't send location yet — see note below
-        line: null,
+        type: inferType(asset), // refine later if backend adds a real type
+        file: asset.location,        // backend doesn't send location yet — see note below
+        line: asset.line,
         library: '—',
         severity: mapRiskToSeverity(asset.risk),
         quantum_vulnerable: asset.quantumVulnerable,
         quantum_threat: asset.reason,
-        description: asset.reason,
+        description: `${asset.name} detected in ${asset.location}`,
         snippet: '',
         recommendation: asset.recommendation
             ? {
@@ -31,7 +52,7 @@ function toFinding(asset, index) {
             urgency: {
                 key: mapRiskToUrgencyKey(asset.risk),
                 label: asset.risk,
-                detail: `Mosca margin: ${asset.moscaMargin} yrs`,
+                detail: describeMargin(asset),
             },
         },
     };

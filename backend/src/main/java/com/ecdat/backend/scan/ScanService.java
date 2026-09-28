@@ -24,7 +24,8 @@ public class ScanService {
             boolean isSignature = "signature".equalsIgnoreCase(c.primitive());
             AssetRisk risk = analyzer.analyze(
                     c.name(), isSignature,
-                    profile.dataLifetimeYears(), profile.migrationYears(), z
+                    profile.dataLifetimeYears(), profile.migrationYears(), z,
+                    c.location(), c.line()
             );
             assets.add(risk);
         }

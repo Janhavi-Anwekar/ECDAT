@@ -49,10 +49,11 @@ export default function DetailPage({ finding, index, total, onBack, onPrev, onNe
           </div>
 
           <div className="card card-pad section-block">
-            <h3>Why it is risky</h3>
+            <h3>{finding.severity === 'safe' ? 'Why it is safe' : 'Why it is risky'}</h3>
             <p>{finding.quantum_threat}</p>
           </div>
 
+          {finding.snippet && (
           <div className="card card-pad section-block">
             <h3>Code context</h3>
             <pre className="code-block">
@@ -60,6 +61,7 @@ export default function DetailPage({ finding, index, total, onBack, onPrev, onNe
               {finding.snippet}
             </pre>
           </div>
+          )}
         </div>
 
         {/* Right column — Mosca verdict + recommendation */}
@@ -92,15 +94,23 @@ export default function DetailPage({ finding, index, total, onBack, onPrev, onNe
 
           <div className="card card-pad reco-card">
             <div className="card-label">Recommended replacement</div>
-            <div className="reco-algo">{finding.recommendation.algorithm}</div>
-            <p style={{ color: 'var(--ink-2)', fontSize: 13.5, margin: '4px 0 10px' }}>
-              {finding.recommendation.family}
-            </p>
-            <p style={{ fontSize: 14.5 }}>{finding.recommendation.note}</p>
-            <div className="kv-row" style={{ marginTop: 12 }}>
-              <span className="kv-key">Est. migration effort</span>
-              <span className="kv-val">{finding.recommendation.effort}</span>
-            </div>
+            {finding.recommendation ? (
+                <>
+                  <div className="reco-algo">{finding.recommendation.algorithm}</div>
+                  <p style={{ color: 'var(--ink-2)', fontSize: 13.5, margin: '4px 0 10px' }}>
+                    {finding.recommendation.family}
+                  </p>
+                  <p style={{ fontSize: 14.5 }}>{finding.recommendation.note}</p>
+                  <div className="kv-row" style={{ marginTop: 12 }}>
+                    <span className="kv-key">Est. migration effort</span>
+                    <span className="kv-val">{finding.recommendation.effort}</span>
+                  </div>
+                </>
+            ) : (
+                <p style={{ fontSize: 14.5 }}>
+                  No migration needed. This algorithm is not affected by quantum attacks.
+                </p>
+            )}
           </div>
         </div>
       </div>

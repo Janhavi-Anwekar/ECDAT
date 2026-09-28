@@ -22,7 +22,12 @@ public class CbomParser {
                     .path("algorithmProperties")
                     .path("primitive")
                     .asString("");
-            result.add(new CbomComponent(name, primitive));
+
+            JsonNode occurrence = component.path("evidence").path("occurrences").path(0);
+            String location = occurrence.path("location").asString("unknown");
+            int line = occurrence.path("line").asInt(0);
+
+            result.add(new CbomComponent(name, primitive,location,line));
         }
         return result;
     }

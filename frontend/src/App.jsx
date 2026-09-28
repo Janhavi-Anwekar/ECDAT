@@ -3,8 +3,6 @@ import Navbar from './components/Navbar';
 import UploadPage from './pages/UploadPage';
 import OverviewPage from './pages/OverviewPage';
 import DetailPage from './pages/DetailPage';
-import sample from './data/sampleResults.json';
-import { enrichFindings } from './lib/analysis';
 import { runScan } from './lib/api';
 
 export default function App() {

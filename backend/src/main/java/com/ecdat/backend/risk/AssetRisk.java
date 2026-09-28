@@ -10,5 +10,7 @@ public record AssetRisk(
         double yearsToCrqc,
         double moscaMargin,
         String risk,
-        Recommendation recommendation
+        Recommendation recommendation,
+        String location,
+        int line
 ) { }
