@@ -5,10 +5,11 @@ import java.util.Map;
 public class ProfileCatalog {
 
     private static final Map<String, Profile> PROFILES = Map.of(
-            "DEFENSE", new Profile("Defense / State Secrets", 30, 5),
-            "MEDICAL", new Profile("Medical / Identity Records", 25, 4),
-            "FINANCIAL", new Profile("Financial Records", 10, 3),
-            "SESSION", new Profile("Session Tokens / Temp Data", 1, 1)
+            "DEFENSE",    new Profile("Defense", 50, 5),
+            "GOVERNMENT", new Profile("Government", 30, 5),
+            "HEALTHCARE", new Profile("Healthcare", 40, 4),
+            "FINANCIAL",  new Profile("Financial", 20, 3),
+            "GENERIC",    new Profile("Generic", 10, 2)
     );
 
     public static Profile get(String key) {

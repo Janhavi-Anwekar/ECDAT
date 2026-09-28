@@ -23,9 +23,19 @@ export default function UploadPage({ onComplete }) {
   const scenario = sample.scenarios_available.find((s) => s.id === scenarioId);
   const ready = files.length > 0 && profile && scenario;
 
+  // function addFiles(list) {
+  //   const names = Array.from(list).map((f) => f.name);
+  //   setFiles((prev) => [...new Set([...prev, ...names])]);
+  // }
+
   function addFiles(list) {
-    const names = Array.from(list).map((f) => f.name);
-    setFiles((prev) => [...new Set([...prev, ...names])]);
+    const incoming = Array.from(list);
+    setFiles((prev) => {
+      const existingNames = new Set(prev.map((f) => f.name));
+      const merged = [...prev];
+      incoming.forEach((f) => { if (!existingNames.has(f.name)) merged.push(f); });
+      return merged;
+    });
   }
 
   function runScan() {
@@ -111,12 +121,12 @@ export default function UploadPage({ onComplete }) {
         </div>
         {files.length > 0 && (
           <div className="file-chips">
-            {files.map((name) => (
-              <span key={name} className="file-chip">
-                {name}
+            {files.map((file) => (
+              <span key={file.name} className="file-chip">
+                {file.name}
                 <button
-                  onClick={(e) => { e.stopPropagation(); setFiles(files.filter((f) => f !== name)); }}
-                  aria-label={`Remove ${name}`}
+                  onClick={(e) => { e.stopPropagation(); setFiles(files.filter((f) => f !== file)); }}
+                  aria-label={`Remove ${file.name}`}
                 >
                   ×
                 </button>
