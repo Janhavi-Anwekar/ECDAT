@@ -140,8 +140,8 @@ This is a hackathon prototype built in a short timeframe. Honest limitations:
 
 ## Team
 
-[Add team name and members here]
+THE ERRORS
 
 ## Demo video
 
-[Add link here]
+https://drive.google.com/file/d/15L5f2ehVATitA73Ka5N_JnEIBFZLWH8z/view?usp=drive_link
