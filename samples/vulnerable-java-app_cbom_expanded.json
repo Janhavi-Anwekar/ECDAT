@@ -1,0 +1,266 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "components": [
+    {
+      "name": "RSA-2048",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 10, "location": "src/main/java/demo/CryptoDemo.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "pke", "parameterSetIdentifier": "2048" }
+      }
+    },
+    {
+      "name": "RSA-4096",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 13, "location": "src/main/java/demo/KeyGenUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "pke", "parameterSetIdentifier": "4096" }
+      }
+    },
+    {
+      "name": "SHA256withECDSA",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 16, "location": "src/main/java/demo/CryptoDemo.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "signature" }
+      }
+    },
+    {
+      "name": "ECDH-P256",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 44, "location": "src/main/java/demo/KeyExchangeUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "key-agreement", "curve": "secp256r1" }
+      }
+    },
+    {
+      "name": "DH",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 52, "location": "src/main/java/demo/KeyExchangeUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "key-agreement" }
+      }
+    },
+    {
+      "name": "AES-128",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 21, "location": "src/main/java/demo/CryptoDemo.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "block-cipher", "parameterSetIdentifier": "128" }
+      }
+    },
+    {
+      "name": "AES-256-GCM",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 60, "location": "src/main/java/demo/DataAtRestUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "ae", "parameterSetIdentifier": "256", "mode": "gcm" }
+      }
+    },
+    {
+      "name": "3DES",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 30, "location": "src/main/java/demo/LegacyPaymentUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "block-cipher" }
+      }
+    },
+    {
+      "name": "DES",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 18, "location": "src/main/java/demo/LegacyPaymentUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "block-cipher" }
+      }
+    },
+    {
+      "name": "RC4",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 9, "location": "src/main/java/demo/LegacySessionUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "stream-cipher" }
+      }
+    },
+    {
+      "name": "ChaCha20-Poly1305",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 71, "location": "src/main/java/demo/DataAtRestUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "ae" }
+      }
+    },
+    {
+      "name": "MD5",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 25, "location": "src/main/java/demo/CryptoDemo.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "hash" }
+      }
+    },
+    {
+      "name": "SHA-1",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 12, "location": "src/main/java/demo/LegacySessionUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "hash" }
+      }
+    },
+    {
+      "name": "SHA-384",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 28, "location": "src/main/java/demo/CryptoDemo.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "hash" }
+      }
+    },
+    {
+      "name": "SHA-512",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 34, "location": "src/main/java/demo/IntegrityUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "hash" }
+      }
+    },
+    {
+      "name": "HMAC-SHA256",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 40, "location": "src/main/java/demo/IntegrityUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "mac" }
+      }
+    },
+    {
+      "name": "ML-KEM-768",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 80, "location": "src/main/java/demo/PqcExperimentalUtil.java" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": { "primitive": "kem", "parameterSetIdentifier": "768" }
+      }
+    },
+    {
+      "name": "TLS 1.2",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 5, "location": "src/main/resources/application.yml" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": { "type": "tls", "version": "1.2" }
+      }
+    },
+    {
+      "name": "server.crt",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 1, "location": "src/main/resources/certs/server.crt" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": { "signatureAlgorithmRef": "SHA256withRSA", "subjectPublicKeyRef": "RSA-2048" }
+      }
+    },
+    {
+      "name": "BouncyCastle",
+      "type": "cryptographic-asset",
+      "evidence": {
+        "occurrences": [
+          { "line": 1, "location": "pom.xml" }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "relatedCryptoMaterialProperties": { "type": "library" }
+      }
+    }
+  ]
+}
