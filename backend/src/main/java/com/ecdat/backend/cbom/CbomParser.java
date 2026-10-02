@@ -16,6 +16,10 @@ public class CbomParser {
         List<CbomComponent> result = new ArrayList<>();
 
         for (JsonNode component : root.path("components")) {
+            String assetType = component.path("cryptoProperties").path("assetType").asString("");
+            if(!"algorithm".equals(assetType)){
+                continue;
+            }
             String name = component.path("name").asString();
             String primitive = component
                     .path("cryptoProperties")

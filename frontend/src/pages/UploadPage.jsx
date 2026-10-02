@@ -109,8 +109,8 @@ export default function UploadPage({ onComplete }) {
               <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
           </div>
-          <div className="dropzone__title">Drop files here, or click to browse</div>
-          <div className="dropzone__hint">.py · .java · .js · .go · .c · or a whole .zip</div>
+          <div className="dropzone__title">Drop Resources here.</div>
+          <div className="dropzone__hint">.py · .java · .js · .go · .c · whole .zip or repo link </div>
           <input
             ref={inputRef}
             type="file"

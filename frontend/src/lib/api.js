@@ -3,7 +3,7 @@ const API_URL = 'http://localhost:8080';
 function inferType(asset) {
     const n = asset.name.toUpperCase();
     if (n.includes('AES')) return 'Symmetric';
-    if (n.includes('RSA') || n.includes('ECDSA') || n.includes('ECDH') || n.includes('DSA')) return 'Asymmetric';
+    if (n.includes('RSA') || n.includes('ECDSA') || n.includes('ECDH') || n.includes('DSA') || n === 'EC' || n.startsWith('DH')) return 'Asymmetric';
     if (n.includes('SHA') || n.includes('MD5')) return 'Hash';
     return 'Other';
 }
